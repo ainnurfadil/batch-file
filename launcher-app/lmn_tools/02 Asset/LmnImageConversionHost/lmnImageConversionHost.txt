@@ -1,0 +1,5 @@
+A conversion tool to batch convert image files. The features offered by this tool is as follows:
+
+- Convert Attributes consist of changing image resolution, colorspace, and output format.
+- Create UDIM filler
+- Create .tx file (Arnold, Redshift, Pixar Renderman)

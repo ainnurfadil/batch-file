@@ -1,0 +1,1 @@
+Screen, webcam and sketchboard recorder with an integrated editor.

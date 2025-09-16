@@ -1,0 +1,1 @@
+A tool that allows you to rename multiple files automatically instead of manually renaming one by one. 

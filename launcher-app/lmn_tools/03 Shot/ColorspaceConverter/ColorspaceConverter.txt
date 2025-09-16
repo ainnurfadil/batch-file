@@ -1,0 +1,2 @@
+A tool used to convert colorspaces. 
+Simply drag and drop the file and choose the source colorspace, then choose the export options (format, compression, and bitdepth), then lastly choose what colorspace the output will be.

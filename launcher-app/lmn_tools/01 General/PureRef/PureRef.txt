@@ -1,0 +1,3 @@
+PureRef is a stand-alone program for Windows, Mac and Linux that keeps track of your images.
+
+Whether you're gathering inspiration, making mood boards or need reference images for your painting or 3D model, PureRef is there so you can focus on creating.

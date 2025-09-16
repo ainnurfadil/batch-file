@@ -1,0 +1,7 @@
+Advanced Renamer is a program for renaming multiple files and folders at once. By configuring renaming methods the names can be manipulated in various ways.
+
+It is easy to set up a batch job using multiple methods on a large amount of files. The 14 different methods enables you to change the names, attributes, and timestamps of files in one go. The files can also be copied or moved to new locations based on information in the files.
+
+With Advanced Renamer you can construct new file names by adding, removing, replacing, changing case, or giving the file a brand new name based on known information about the file.
+
+Before performing the operations on the files you can verify that the output will be correct and if you perform the rename and regret it, you can undo the complete batch.
