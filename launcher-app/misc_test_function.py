@@ -48,6 +48,14 @@ class MainWindow(QtWidgets.QMainWindow):
         root_node.appendRow(indonesia)
         root_node.appendRow(japan)
 
+        # ---------------------------------------------
+        base_folder = r'e:\office\batch-file\contoh_folder' 
+
+        if os.path.exists(base_folder):
+            self.add_folder_to_tree(root_node, base_folder)
+        
+        # ---------------------------------------------
+
         project_folder.setModel(tree_model)
         project_folder.expandAll()
         project_folder.clicked.connect(self.get_value)
@@ -56,6 +64,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setCentralWidget(project_folder)
 
+    def add_folder_to_tree(self, parent_item, folder_path):
+        for entry in os.scandir(folder_path):
+            if entry.is_dir():
+                item = FolderItem(entry.name)
+                item.setData(entry.path, QtCore.Qt.UserRole)  # Simpan path di UserRole
+                parent_item.appendRow(item)
+                self.add_folder_to_tree(item, entry.path)
 
     def get_value(self,val):
         print(val.data())
