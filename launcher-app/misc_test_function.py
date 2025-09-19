@@ -19,12 +19,7 @@ class FolderItem(QtGui.QStandardItem):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.tree_model = QtGui.QStandardItemModel()  # Tambahkan ini
-        self.project_folder = QtWidgets.QTreeView()   # Tambahkan ini
         self.layout_all_component()
-        # initial_project = self.project_name.currentText()
-        # if initial_project:
-        #     self.update_project_folder_tree(initial_project)
 
     def project_list_text_signal(self, text):
         print(text)
@@ -40,13 +35,22 @@ class MainWindow(QtWidgets.QMainWindow):
     def tree_folder(self,parent_item_name,child_item_path):
         '''
         In this function it will make tree structure based on given directory
-        path address.
+        path address that from layout_all_component function.
         '''
-        for name_folder in os.scandir(child_item_path):
-            if name_folder.is_dir():
-                item = FolderItem(name_folder.name)
-                parent_item_name.appendRow(item)
-                self.tree_folder(item,name_folder.path)
+        scanning_directory = os.listdir(child_item_path)
+        print(f"scan directory{scanning_directory}")
+        for name_folder in scanning_directory:
+            # if name_folder.is_dir():
+            print(name_folder)
+            item = FolderItem(name_folder)
+            parent_item_name.appendRow(item)
+            self.tree_folder(item,name_folder)
+                    
+            # elif name_folder.is_file():
+            #     print(name_folder.name)
+            #     item = FolderItem(name_folder.name)
+            #     parent_item_name.appendRow(item)
+                
 # -----------------------------------------------------
     def update_project_folder_tree(self, project_name):
         '''
@@ -90,23 +94,23 @@ class MainWindow(QtWidgets.QMainWindow):
         # Interface for folder tree in every project
 
         project_folder = QtWidgets.QTreeView()
+        tree_model = QtGui.QStandardItemModel()
+        project_folder.setModel(tree_model)
         project_folder.setHeaderHidden(True)
 
-        self.tree_model = QtGui.QStandardItemModel()
-        root_node_name = self.tree_model.invisibleRootItem()
-        # # ---------------------------------------------
-        # root_directory_path_project = "batch-file"
+        root_node_name = tree_model.invisibleRootItem()
+        # ---------------------------------------------
+        root_directory_path_project = "batch-file"
 
-        # if os.path.exists(root_directory_path_project):
-        #     self.tree_folder(root_node_name,root_directory_path_project)
-        # # ---------------------------------------------
-        project_folder.setModel(self.tree_model)
+        if os.path.exists(root_directory_path_project):
+            self.tree_folder(root_node_name,root_directory_path_project)
+        # ---------------------------------------------
         project_folder.clicked.connect(self.get_value)
 
         # layout setting
         vertical_layout = QtWidgets.QVBoxLayout()
         vertical_layout.addWidget(project_list)
-        vertical_layout.addWidget(self.project_folder)
+        vertical_layout.addWidget(project_folder)
 
         # Grouping Project Dropdown menu and Folder Tree
 
