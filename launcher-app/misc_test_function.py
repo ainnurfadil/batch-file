@@ -19,6 +19,8 @@ class FolderItem(QtGui.QStandardItem):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+        self.tree_model = QtGui.QStandardItemModel()  # Tambahkan ini
+        self.project_folder = QtWidgets.QTreeView()   # Tambahkan ini
         self.layout_all_component()
         # initial_project = self.project_name.currentText()
         # if initial_project:
@@ -90,21 +92,21 @@ class MainWindow(QtWidgets.QMainWindow):
         project_folder = QtWidgets.QTreeView()
         project_folder.setHeaderHidden(True)
 
-        tree_model = QtGui.QStandardItemModel()
-        root_node_name = tree_model.invisibleRootItem()
+        self.tree_model = QtGui.QStandardItemModel()
+        root_node_name = self.tree_model.invisibleRootItem()
         # # ---------------------------------------------
         # root_directory_path_project = "batch-file"
 
         # if os.path.exists(root_directory_path_project):
         #     self.tree_folder(root_node_name,root_directory_path_project)
         # # ---------------------------------------------
-        project_folder.setModel(tree_model)
+        project_folder.setModel(self.tree_model)
         project_folder.clicked.connect(self.get_value)
 
         # layout setting
         vertical_layout = QtWidgets.QVBoxLayout()
         vertical_layout.addWidget(project_list)
-        vertical_layout.addWidget(project_folder)
+        vertical_layout.addWidget(self.project_folder)
 
         # Grouping Project Dropdown menu and Folder Tree
 
