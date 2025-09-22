@@ -37,19 +37,19 @@ class MainWindow(QtWidgets.QMainWindow):
         In this function it will make tree structure based on given directory
         path address that from layout_all_component function.
         '''
-        scanning_directory = os.listdir(child_item_path)
+        scanning_directory = os.scandir(child_item_path)
         print(f"scan directory{scanning_directory}")
         for name_folder in scanning_directory:
-            # if name_folder.is_dir():
-            print(name_folder)
-            item = FolderItem(name_folder)
-            parent_item_name.appendRow(item)
-            self.tree_folder(item,name_folder)
+            if name_folder.is_dir():
+                print(name_folder)
+                item = FolderItem(name_folder.name)
+                parent_item_name.appendRow(item)
+                self.tree_folder(item,name_folder.path)
                     
-            # elif name_folder.is_file():
-            #     print(name_folder.name)
-            #     item = FolderItem(name_folder.name)
-            #     parent_item_name.appendRow(item)
+            elif name_folder.is_file():
+                print(name_folder.name)
+                item = FolderItem(name_folder.name)
+                parent_item_name.appendRow(item)
                 
 # -----------------------------------------------------
     def update_project_folder_tree(self, project_name):
