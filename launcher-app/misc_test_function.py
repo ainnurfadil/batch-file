@@ -16,6 +16,17 @@ class FolderItem(QtGui.QStandardItem):
         self.setFont(font_style)
         self.setText(txt)
 
+class FileItem(QtGui.QStandardItem):
+    def __init__(self, txt='', font_size=10, font_bold=False, font_color=QtGui.QColor(255,255,255)):
+        super().__init__()
+        font_style = QtGui.QFont("Segoe UI", font_size)
+        font_style.setBold(font_bold)
+        self.setIcon(QtGui.QIcon(r"launcher-app\icon\file.png"))
+        self.setEditable(False)
+        self.setForeground(font_color)
+        self.setFont(font_style)
+        self.setText(txt)
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -31,6 +42,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.project_name = os.listdir(project_dir)
         
         return self.project_name
+    
+    def get_value(self,val):
+        ''' 
+        This function will be storing data from list tree that clicked by user,
+        and after that it will be outputing the string value that equal with the 
+        list directory.
+        '''
+        print(val.data())
+        # print(val.row())
+        # print(val.colomn())
 
     def tree_folder(self,parent_item_name,child_item_path):
         '''
@@ -48,7 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     
             elif name_folder.is_file():
                 print(name_folder.name)
-                item = FolderItem(name_folder.name)
+                item = FileItem(name_folder.name)
                 parent_item_name.appendRow(item)
                 
 # -----------------------------------------------------
@@ -71,16 +92,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.project_folder.expandAll()
 # -------------------------------------------------------
 
-    def get_value(self,val):
-        ''' 
-        This function will be storing data from list tree that clicked by user,
-        and after that it will be outputing the string value that equal with the 
-        list directory.
-        '''
-        print(val.data())
-        # print(val.row())
-        # print(val.colomn())
-
     def layout_all_component(self):
         # Interface Project menu drop down
         self.get_list_folder_project()
@@ -92,14 +103,13 @@ class MainWindow(QtWidgets.QMainWindow):
         project_list.currentTextChanged.connect(self.project_list_text_signal)
 
         # Interface for folder tree in every project
-
         project_folder = QtWidgets.QTreeView()
         tree_model = QtGui.QStandardItemModel()
         project_folder.setModel(tree_model)
         project_folder.setHeaderHidden(True)
 
-        root_node_name = tree_model.invisibleRootItem()
         # ---------------------------------------------
+        root_node_name = tree_model.invisibleRootItem()
         root_directory_path_project = "batch-file"
 
         if os.path.exists(root_directory_path_project):

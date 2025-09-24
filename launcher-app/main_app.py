@@ -24,6 +24,8 @@ class LauncherApps(QtWidgets.QMainWindow):
         self.panel_info = InfoSidePanel()
         self.panel_list = DepartmentList()
         self.panel_search = EditText()
+        self.panel_project_tree = ProjectPanelListAndTreeView()
+
 
     # layout apps content
     def _ui_setup(self):
@@ -36,13 +38,14 @@ class LauncherApps(QtWidgets.QMainWindow):
         self.panel_info.setFixedSize(500, 800)
         self.panel_info.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                       QtWidgets.QSizePolicy.Fixed)
-        self.panel_list.setFixedSize(300, 900)
+        self.panel_list.setFixedSize(290, 200)
         self.panel_list.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                       QtWidgets.QSizePolicy.Fixed)
         self.panel_search.setFixedSize(1170, 60)
         self.panel_search.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                         QtWidgets.QSizePolicy.Fixed)
-        
+        self.panel_project_tree.setFixedSize(290, 650)
+
         layout_content = QtWidgets.QHBoxLayout()
         layout_content.addWidget(self.panel_button)
         layout_content.addWidget(self.panel_info)
@@ -60,9 +63,18 @@ class LauncherApps(QtWidgets.QMainWindow):
         right_side_content.setLayout(layout_content_vertical)
         right_side_content.setFixedSize(1200, 850)
 
+        # Panel List and Project Tree vertical layout
+        left_side_panel_layout = QtWidgets.QVBoxLayout()
+        left_side_panel_layout.addWidget(self.panel_project_tree)
+        left_side_panel_layout.addWidget(self.panel_list)
+
+        left_side_panel = QtWidgets.QWidget()
+        left_side_panel.setLayout(left_side_panel_layout)
+        left_side_panel.setFixedSize(300, 900)
+
         # Final layout
         all_layout_result = QtWidgets.QHBoxLayout()
-        all_layout_result.addWidget(self.panel_list)
+        all_layout_result.addWidget(left_side_panel)
         all_layout_result.addWidget(right_side_content)
 
         result = QtWidgets.QWidget()
@@ -79,7 +91,7 @@ class LauncherApps(QtWidgets.QMainWindow):
         self.panel_search.search_text_signal.connect(self.panel_button.get_signal_from_search)
 
 # List Department
-class DepartmentList(QtWidgets.QWidget):
+class DepartmentList(QtWidgets.QMainWindow):
     path_selected = QtCore.Signal(str)
 
     def __init__(self):
@@ -87,8 +99,10 @@ class DepartmentList(QtWidgets.QWidget):
         self._ui_setup()
 
     def _ui_setup(self):
+        group_box = QtWidgets.QGroupBox("General Tools")
+
         list_department = QtWidgets.QListWidget()
-        list_department.setFixedSize(290, 850)
+        # list_department.setFixedSize(290, 850)
 
         self.list_dir = self.get_dir_path()
         list_department.addItems(self.list_dir)
@@ -97,11 +111,13 @@ class DepartmentList(QtWidgets.QWidget):
         list_layout = QtWidgets.QVBoxLayout()
         list_layout.addWidget(list_department)
 
-        self.setLayout(list_layout)
+        group_box.setLayout(list_layout)
+
+        self.setCentralWidget(group_box)
 
     def get_dir_path(self):
         # TODO buat jadi funciton sendiri
-        self.root_dir = "launcher_app\lmn_tools"
+        self.root_dir = "launcher-app\lmn_tools"
         self.list_dir = []
         for item_name in os.listdir(self.root_dir):
             temp_dir = os.path.join(self.root_dir, item_name)
@@ -137,8 +153,6 @@ class ButtonAppsHolder(QtWidgets.QWidget):
 
         self.setLayout(self.grid)
 
-    # TODO
-    # hapus unused function
     def update_root_dir(self, path):
         self.root_dir = path
         
@@ -325,7 +339,7 @@ class InfoSidePanel(QtWidgets.QWidget):
         if self.icon_list:
             self.icon_apps.setPixmap(QtGui.QPixmap(self.icon_list).scaled(100, 100))
         elif self.icon_list is None:
-            self.icon_apps.setPixmap(QtGui.QPixmap(r"launcher_app\icon\owl.png").scaled(100, 100))
+            self.icon_apps.setPixmap(QtGui.QPixmap(r"launcher-app\icon\owl.png").scaled(100, 100))
 
         # Information widget
         self.apps_description = QtWidgets.QPlainTextEdit()
@@ -382,86 +396,9 @@ class EditText(QtWidgets.QWidget):
     def get_signal_text(self, text):
         self.search_text_signal.emit(text)
 
-class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.layout_all_component()
-
-    def project_list_text_signal(self, text):
-        print(text)
-        self.folder_selected = text
-
-    def get_list_folder_project(self):
-        project_dir = f"batch-file"
-        self.project_name = os.listdir(project_dir)
-        
-        return self.project_name
-
-    def tree_folder(self,parent_item_name,child_item_path):
-        '''
-        In this function it will make tree structure based on given directory
-        path address.
-        '''
-        for name_folder in os.scandir(child_item_path):
-            if name_folder.is_dir():
-                item = FolderItem(name_folder.name)
-                parent_item_name.appendRow(item)
-                self.tree_folder(item,name_folder.path)
-
-    def get_value(self,val):
-        ''' 
-        This function will be storing data from list tree that clicked by user,
-        and after that it will be outputing the string value that equal with the 
-        list directory.
-        '''
-        print(val.data())
-        # print(val.row())
-        # print(val.colomn())
-
-    def layout_all_component(self):
-        # Interface Project menu drop down
-        self.get_list_folder_project()
-        group_box = QtWidgets.QGroupBox("Project")
-
-        # Interface for the name of ongoing project list
-        project_list = QtWidgets.QComboBox()
-        project_list.addItems(self.project_name)
-        project_list.currentTextChanged.connect(self.project_list_text_signal)
-
-        # Interface for folder tree in every project
-
-        project_folder = QtWidgets.QTreeView()
-        project_folder.setHeaderHidden(True)
-
-        tree_model = QtGui.QStandardItemModel()
-        root_node_name = tree_model.invisibleRootItem()
-        # ---------------------------------------------
-        
-
-        root_directory_path_project = "batch-file"
-
-        if os.path.exists(root_directory_path_project):
-            self.tree_folder(root_node_name,root_directory_path_project)
-        # ---------------------------------------------
-        project_folder.setModel(tree_model)
-        project_folder.clicked.connect(self.get_value)
-
-        # layout setting
-        vertical_layout = QtWidgets.QVBoxLayout()
-        vertical_layout.addWidget(project_list)
-        vertical_layout.addWidget(project_folder)
-
-        # Grouping Project Dropdown menu and Folder Tree
-
-        # self.setLayout()
-        group_box.setLayout(vertical_layout)
-
-        self.setCentralWidget(group_box)
-
 class FolderItem(QtGui.QStandardItem):
     def __init__(self, txt='', font_size=10, font_bold=False, font_color=QtGui.QColor(255,255,255)):
         super().__init__()
-
         font_style = QtGui.QFont("Segoe UI", font_size)
         font_style.setBold(font_bold)
 
@@ -470,6 +407,92 @@ class FolderItem(QtGui.QStandardItem):
         self.setForeground(font_color)
         self.setFont(font_style)
         self.setText(txt)
+
+class FileItem(QtGui.QStandardItem):
+    def __init__(self, txt='', font_size=10, font_bold=False, font_color=QtGui.QColor(255,255,255)):
+        super().__init__()
+        font_style = QtGui.QFont("Segoe UI", font_size)
+        font_style.setBold(font_bold)
+
+        self.setIcon(QtGui.QIcon(r"launcher-app\icon\file.png"))
+        self.setEditable(False)
+        self.setForeground(font_color)
+        self.setFont(font_style)
+        self.setText(txt)
+
+class ProjectPanelListAndTreeView(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.project_folder = QtWidgets.QTreeView()
+        self.tree_model = QtGui.QStandardItemModel()
+        self.project_folder.setModel(self.tree_model)
+        self.project_folder.setHeaderHidden(True)
+        # self.project_folder.clicked.connect(self.get_value)
+        self.project_name = self.get_list_folder_project()
+        self.layout_all_component()
+
+    def get_list_folder_project(self):
+        """
+        Get project name list based on folder batch-file directory.
+        """
+        project_dir = "batch-file"
+        directory_project = []
+
+        for name_project in os.listdir(project_dir):
+            full_path = os.path.join(project_dir,name_project)
+            print("full_path ",full_path)
+            if os.path.isdir(full_path):
+                directory_project.append(name_project)
+        return directory_project
+        
+    def tree_folder(self, parent_item, folder_path):
+        """
+        Spanning item list folder and file inside project folder.
+        """
+        for entry in os.scandir(folder_path):
+            if entry.is_dir():
+                item = FolderItem(entry.name)
+                parent_item.appendRow(item)
+                self.tree_folder(item, entry.path)
+
+            elif entry.is_file():
+                print(entry.name)
+                item = FileItem(entry.name)
+                parent_item.appendRow(item)
+
+    def update_project_folder_tree(self, project_name):
+        '''
+        This function will update the tree view based on the selected project name.
+        '''
+        self.tree_model.clear()
+        root_node = self.tree_model.invisibleRootItem()
+
+        root_directory_path_project = os.path.join("batch-file", project_name)
+        
+        if os.path.isdir(root_directory_path_project):
+            root_item = FolderItem(project_name)
+            root_node.appendRow(root_item)
+            self.tree_folder(root_item, root_directory_path_project)
+
+    # def get_value(self, index):
+    #     item = self.tree_model.itemFromIndex(index)
+    #     print(item.text())
+
+    def layout_all_component(self):
+        group_box = QtWidgets.QGroupBox("Project")
+        project_list = QtWidgets.QComboBox()
+        project_list.addItems(self.project_name)
+        project_list.currentTextChanged.connect(self.update_project_folder_tree)
+        
+        vertical_layout = QtWidgets.QVBoxLayout()
+        vertical_layout.addWidget(project_list)
+        vertical_layout.addWidget(self.project_folder)
+        
+        group_box.setLayout(vertical_layout)
+        self.setCentralWidget(group_box)
+        # Show the first project on the tree
+        if self.project_name:
+            self.update_project_folder_tree(self.project_name[0])
 
 def main():
     # seperti pembungkus dari semua program untuk di jalankan programnya
