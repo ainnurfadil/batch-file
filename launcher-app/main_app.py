@@ -8,11 +8,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 
 # UI
 class LauncherApps(QtWidgets.QMainWindow):
-        # TODO : Buat function pemisah
-        # 1. buat function untuk memisahkan antara
-        # a. UI
-        # b. Event
-        # c. private properties
+
     def __init__(self):
         super().__init__()
         self.__private_properties()
@@ -30,12 +26,12 @@ class LauncherApps(QtWidgets.QMainWindow):
     # layout apps content
     def _ui_setup(self):
         self.setWindowTitle("Apps Launcher")
-        self.setFixedSize(1500, 900)
+        self.resize(1500, 900)
     
-        self.panel_button.setFixedSize(700, 800)
+        # self.panel_button.setFixedSize(700, 800)
         self.panel_button.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                         QtWidgets.QSizePolicy.Fixed)
-        self.panel_info.setFixedSize(500, 800)
+        # self.panel_info.setFixedSize(500, 800)
         self.panel_info.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                       QtWidgets.QSizePolicy.Fixed)
         self.panel_list.setFixedSize(290, 200)
@@ -44,7 +40,7 @@ class LauncherApps(QtWidgets.QMainWindow):
         self.panel_search.setFixedSize(1170, 60)
         self.panel_search.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
                                         QtWidgets.QSizePolicy.Fixed)
-        self.panel_project_tree.setFixedSize(290, 650)
+        # self.panel_project_tree.setFixedSize(290, 650)
 
         layout_content = QtWidgets.QHBoxLayout()
         layout_content.addWidget(self.panel_button)
@@ -52,7 +48,7 @@ class LauncherApps(QtWidgets.QMainWindow):
 
         content_widget = QtWidgets.QWidget()
         content_widget.setLayout(layout_content)
-        content_widget.setFixedSize(1200, 800)
+        # content_widget.setFixedSize(1200, 800)
 
         # apps content combine with search bar
         layout_content_vertical = QtWidgets.QVBoxLayout()
@@ -61,7 +57,7 @@ class LauncherApps(QtWidgets.QMainWindow):
 
         right_side_content = QtWidgets.QWidget()
         right_side_content.setLayout(layout_content_vertical)
-        right_side_content.setFixedSize(1200, 850)
+        # right_side_content.setFixedSize(1200, 850)
 
         # Panel List and Project Tree vertical layout
         left_side_panel_layout = QtWidgets.QVBoxLayout()
@@ -70,7 +66,7 @@ class LauncherApps(QtWidgets.QMainWindow):
 
         left_side_panel = QtWidgets.QWidget()
         left_side_panel.setLayout(left_side_panel_layout)
-        left_side_panel.setFixedSize(300, 900)
+        # left_side_panel.setFixedSize(300, 900)
 
         # Final layout
         all_layout_result = QtWidgets.QHBoxLayout()
@@ -79,7 +75,7 @@ class LauncherApps(QtWidgets.QMainWindow):
 
         result = QtWidgets.QWidget()
         result.setLayout(all_layout_result)
-        result.setFixedSize(1500, 900)
+        # result.setFixedSize(1500, 900)
     
         self.setCentralWidget(result)
 
@@ -497,6 +493,55 @@ class ProjectPanelListAndTreeView(QtWidgets.QMainWindow):
 def main():
     # seperti pembungkus dari semua program untuk di jalankan programnya
     app = QtWidgets.QApplication(sys.argv)
+
+    font = QtGui.QFont("Segoe UI", 11)
+    app.setFont(font)
+
+    # Set dark style sheet
+    dark_mode = """
+    QWidget {
+        background-color: #232629;
+        color: #e0e0e0;
+        font-family: 'Segoe UI';
+        font-size: 11pt;
+    }
+    QGroupBox {
+        border: 1px solid #444;
+        margin-top: 10px;
+        background-color: #2c2f33;
+    }
+    QComboBox, QLineEdit, QListWidget, QTreeView, QPushButton, QPlainTextEdit {
+        background-color: #2c2f33;
+        color: #e0e0e0;
+        border: 1px solid #444;
+        selection-background-color: #3a3f44;
+        selection-color: #ffffff;
+    }
+    QPushButton {
+        background-color: #3a3f44;
+        border-radius: 5px;
+        padding: 5px;
+    }
+    QPushButton:checked {
+        background-color: #7289da;
+        color: #fff;
+    }
+    QScrollBar:vertical {
+        background: #232629;
+        width: 12px;
+        margin: 0px 0px 0px 0px;
+    }
+    QScrollBar::handle:vertical {
+        background: #444;
+        min-height: 20px;
+        border-radius: 6px;
+    }
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+        background: none;
+        height: 0px;
+    }
+    """
+    app.setStyleSheet(dark_mode)
 
     # Membuat window
     window = LauncherApps()
