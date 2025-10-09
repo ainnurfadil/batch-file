@@ -1,32 +1,11 @@
-"""
-Maya code progress exploration
-"""
-
-a = cmds.listRelatives("box_GRP")
-# a = ['bola', 'pCylinder']
-container_of_nodetype = []
-for list_relative in a:
-    b = cmds.nodeType(list_relative)
-    container_of_nodetype.append(b)
-    
-if container_of_nodetype == "mesh":
-    cmds.hyperShade(assign="lambert3", objects=a)
-else:
-    for a_selection in a:
-        list_relatives_loop = cmds.listRelatives(a_selection)
-        
-        container_of_node_relative_loop = []
-        for node in list_relatives_loop:
-            b = cmds.nodeType(list_relative)
-            
-        if b = "mesh":
-            cmds.hyperShade(assign="lambert3", objects=a_selection)
-
-
-
-"""
-Maya tools code progress
-"""
+# TODO : 
+# 1. avoid create multiple shader if already connected with same name
+# # 2. add prefix {m_} for material name 
+# 3. change to pep8 style + 80/90 char limit
+# 4. change icon logo get selected object
+# 5. give windows name
+# 6. remove unused variable
+# 7. cleanup `format` usage : use legacy f-string .format()
 
 import os
 
@@ -42,33 +21,31 @@ class TexturingTools(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(TexturingTools, self).__init__(parent=parent)
         self.init_ui()
+        self.bind_event()
 
     def init_ui(self):
         """
         Make UI
         """
         # Layout setting
-        self.status_layout = QtWidgets.QHBoxLayout()
+        status_layout = QtWidgets.QHBoxLayout()
         general_layout = QtWidgets.QVBoxLayout()
 
         # Widget status selected object name
-        self.selected_object_label = QtWidgets.QLabel(f"Group\Object Selected \t:")
-        self.edit_button = QtWidgets.QPushButton()
-        self.selected_object_name = QtWidgets.QLineEdit()
+        selected_object_label = QtWidgets.QLabel("Group\Object Selected \t:")
+        edit_button = QtWidgets.QPushButton()
+        selected_object_name = QtWidgets.QLineEdit()
 
         # Push button edit_button
         icon_edit_path = (os.path.join(ICONS_DIR,"general/publish/Edit.png"))
-        self.edit_button.setIcon(QtGui.QIcon(icon_edit_path))
-        self.edit_button.clicked.connect(self.get_active_object_name)
-
-        self.get_active_object_name()
+        edit_button.setIcon(QtGui.QIcon(icon_edit_path))
+        
 
         status_widget_convert = QtWidgets.QWidget()
-        status_widget_convert.setLayout(self.status_layout)
+        status_widget_convert.setLayout(status_layout)
 
         button_generate = QtWidgets.QPushButton("Generate Proxy Material")
-        button_generate.clicked.connect(self.check_object_shader)
-
+        
         general_layout.addWidget(status_widget_convert)
         general_layout.addWidget(button_generate)
 
@@ -76,6 +53,18 @@ class TexturingTools(QtWidgets.QMainWindow):
         result.setLayout(general_layout)
 
         self.setCentralWidget(result)
+
+        # Declare local variable into as class variable
+        self.status_layout = status_layout
+        self.selected_object_label = selected_object_label
+        self.edit_button = edit_button
+        self.selected_object_name = selected_object_name
+        self.button_generate = button_generate
+        self.get_active_object_name()
+
+    def bind_event(self):
+        self.edit_button.clicked.connect(self.get_active_object_name)
+        self.button_generate.clicked.connect(self.process_generate_button)
 
     def get_active_object_name(self):
         """
@@ -88,7 +77,7 @@ class TexturingTools(QtWidgets.QMainWindow):
         else:
             self.choose_object_list =  str("")
 
-        print(f"Group\Object Selected = {self.choose_object_list}")
+        print("Group\Object Selected = {}".format(self.choose_object_list))
         
         self.selected_object_name.setText(f"{self.choose_object_list}")
 
@@ -98,112 +87,87 @@ class TexturingTools(QtWidgets.QMainWindow):
 
     def disconnect_initial_material(self):
         """
-        Disconnect initial material (lambert1) that connected to initial Shading Engine (SG)
+        Disconnect initial material (lambert1) that connected to 
+        initial Shading Engine (SG)
         """
-        # Select inital material
-        select_lambert1 = cmds.select("lambert1")
+        # Inital material
+        initial_node_name = "lambert1"
+        lambert1_connection = cmds.listConnections(initial_node_name)
+        default_inital_material = "{}.outColor".format(initial_node_name)
 
-        check_lambert1_connection = cmds.listConnections(select_lambert1)
-
-        list_node_type_connections = []
-        for node in check_lambert1_connection:
+        for node in lambert1_connection:
             node_type = cmds.nodeType(node)
-            list_node_type_connections.append(node_type)
 
             # Disconenct initial material connection shadingEngine
             if node_type == "shadingEngine":
-                cmds.disconnectAttr(f'{select_lambert1}.outColor',f'{node}.surfaceShader')
+                cmds.disconnectAttr(default_inital_material,"{}.surfaceShader".format(node))
 
-        print(check_lambert1_connection)
-        print(list_node_type_connections)
+        print("Initial material and shading engine disconnected")
     
     def make_shadingEngine_and_material_node(self,object_selection):
         """
         Make proxy shading engine node and proxy material lambert based node
         """
+        pointing_object_selection = object_selection[0]
+
         # make material nodes
-        self.material_nodes = cmds.shadingNode('lambert', name=f"{object_selection}Proxy", asShader=True)
+        material_nodes = cmds.shadingNode("lambert", 
+                                          name="m_{}Proxy".format(pointing_object_selection), 
+                                          asShader=True)
+        # print(f'Material created = {material_nodes}')
 
         # make shading group nodes
-        shading_group_nodes = cmds.sets(name=f"{object_selection}Proxy_SG", empty=True, renderable=True, noSurfaceShader=True)
+        shading_group_nodes = cmds.sets(name="{}Proxy_SG".format(pointing_object_selection), 
+                                        empty=True, 
+                                        renderable=True, 
+                                        noSurfaceShader=True)
+        # print(f'Shading engine created = {shading_group_nodes}')
 
-        #connect material and shading group
-        cmds.connectAttr(f"{self.material_nodes}.outColor", f"{shading_group_nodes}.surfaceShader")
+        # connect material and shading group
+        cmds.connectAttr("{}.outColor".format(material_nodes), 
+                         "{}.surfaceShader".format(shading_group_nodes))
+        # print(f"material {material_nodes} connected with {shading_group_nodes}")
 
-    def check_object_shader(self):
+    def delete_unused_hypershade_node(self):
         """
-        Check if object assigned default shader (lambert1)
+        Keep hypershade node clean from unused node.
         """
-        # self.choose_object_list = cmds.ls(selection=True)
-        if not self.choose_object_list:
-            cmds.warning("Please select at least one object.")
-            return False
+        mel.eval('''
+                 hyperShadePanelMenuCommand("hyperShadePanel1", "deleteUnusedNodes");
+                 ''')
+        # print("Unused Hypershade node deleted")
 
-        for obj in self.choose_object_list:
-            # Get the shaders connected to the object
-            shaders = cmds.listConnections(obj, type='shadingEngine')
-            if shaders:
-                # Check if lambert1 is among the connected shaders
-                if 'initialShadingGroup' in shaders:
-                    return True
-        return False  # Object is not connected to lambert1
-
-    def assign_proxy_material(self,object_selection):
+    def assign_proxy_material(self,object_name):
         """
         Assign proxy material for selected object
         """
+        pointing_object_name = object_name[0]
         # Assign new material proxy
-        cmds.hyperShade(assign=f"{self.material_nodes}",objects=f"{object_selection}")
-
-    def get_all_children(self, obj):
-        """
-        Get all children of an object recursively.
-        """
-        children = cmds.listRelatives(obj, children=True, fullPath=True) or []
-        all_children = []
-        for child in children:
-            all_children.append(child)
-            all_children.extend(self.get_all_children(child))  # Recursive call
-        return all_children
+        cmds.select("{}".format(pointing_object_name))
+        cmds.hyperShade(assign="{}Proxy".format(pointing_object_name))
+        # print(f"Assign object {pointing_object_name} to {pointing_object_name}Proxy")
 
     def process_generate_button(self):
         """
         Process when generate button clicked
         """
-        name_selected_object = self.choose_object_list
-        # need itteration of object listed
-        
+        self.delete_unused_hypershade_node()
         self.disconnect_initial_material()
-        self.make_shadingEngine_and_material_node(name_selected_object)
 
-        self.assign_proxy_material()
+        name_selected_object = self.choose_object_list
+        list_polygon_name = cmds.listRelatives(f"{name_selected_object}",
+                                               allDescendents=True, 
+                                               type=["mesh","nurbsSurface"])
+        
+        for polygon in list_polygon_name:
+            name_shape = cmds.listRelatives(f"{polygon}",p=True)
+            self.make_shadingEngine_and_material_node(name_shape)
+
+            self.assign_proxy_material(name_shape)
+        
 
 def show():
     QtAcacia.run(TexturingTools, host="maya")
 
 if __name__ == '__main__':
     show()
-
-
-top_group = "box_GRP"
-# The name of the material to assign
-material_name = "lambert3"
-
-# 1. Find all descendant nodes under the group that are of type "mesh"
-#    - 'allDescendents=True' searches the entire hierarchy.
-#    - 'type="mesh"' filters the result to only include mesh shape nodes.
-#    - This gives us a list of all the mesh shapes, e.g., ['pSphereShape1', 'pCubeShape1']
-mesh_shapes = cmds.listRelatives(top_group, allDescendents=True, type="mesh")
-
-# 2. Check if any meshes were actually found
-if not mesh_shapes:
-    print(f"Warning: No mesh objects found under '{top_group}'.")
-else:
-    # 3. Get the parent transform of each mesh shape.
-    #    The hyperShade command needs the transform node, not the shape node.
-    #    We use a 'set' to automatically handle any duplicates.
-    transforms = set(cmds.listRelatives(mesh_shapes, parent=True))
-    
-    # 4. Assign the material to all the transforms at once.
-    cmds.hyperShade(assign=material_name, objects=list(transforms))
-    print(f"Successfully assigned '{material_name}' to {len(transforms)} objects.")

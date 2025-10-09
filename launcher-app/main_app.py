@@ -496,8 +496,7 @@ def main():
 
     font = QtGui.QFont("Segoe UI", 11)
     app.setFont(font)
-
-    # Set dark style sheet
+    
     dark_mode = """
     QWidget {
         background-color: #232629;
