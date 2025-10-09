@@ -183,3 +183,27 @@ def show():
 
 if __name__ == '__main__':
     show()
+
+
+top_group = "box_GRP"
+# The name of the material to assign
+material_name = "lambert3"
+
+# 1. Find all descendant nodes under the group that are of type "mesh"
+#    - 'allDescendents=True' searches the entire hierarchy.
+#    - 'type="mesh"' filters the result to only include mesh shape nodes.
+#    - This gives us a list of all the mesh shapes, e.g., ['pSphereShape1', 'pCubeShape1']
+mesh_shapes = cmds.listRelatives(top_group, allDescendents=True, type="mesh")
+
+# 2. Check if any meshes were actually found
+if not mesh_shapes:
+    print(f"Warning: No mesh objects found under '{top_group}'.")
+else:
+    # 3. Get the parent transform of each mesh shape.
+    #    The hyperShade command needs the transform node, not the shape node.
+    #    We use a 'set' to automatically handle any duplicates.
+    transforms = set(cmds.listRelatives(mesh_shapes, parent=True))
+    
+    # 4. Assign the material to all the transforms at once.
+    cmds.hyperShade(assign=material_name, objects=list(transforms))
+    print(f"Successfully assigned '{material_name}' to {len(transforms)} objects.")
